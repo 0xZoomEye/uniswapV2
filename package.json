@@ -1,0 +1,21 @@
+{
+  "name": "uniswapv2",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "compile": "hardhat compile",
+    "deploy": "HARDHAT_NETWORK=localhost hardhat run scripts/deploy.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@openzeppelin/contracts": "^3.4.1",
+    "@uniswap/lib": "4.0.1-alpha",
+    "@uniswap/v2-core": "1.0.0"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "hardhat": "^2.22.12"
+  }
+}
