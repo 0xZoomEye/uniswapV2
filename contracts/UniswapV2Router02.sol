@@ -9,6 +9,8 @@ import './libraries/SafeMath.sol';
 import './interfaces/IERC20.sol';
 import './interfaces/IWETH.sol';
 
+import 'hardhat/console.sol';
+
 contract UniswapV2Router02 is IUniswapV2Router02 {
     event Logger(string msg);
     using SafeMath for uint;
@@ -71,7 +73,6 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
     ) external virtual override ensure(deadline) returns (uint amountA, uint amountB, uint liquidity) {
         (amountA, amountB) = _addLiquidity(tokenA, tokenB, amountADesired, amountBDesired, amountAMin, amountBMin);
         address pair = UniswapV2Library.pairFor(factory, tokenA, tokenB);
-        IERC20 token1 = IERC20(tokenA);
         TransferHelper.safeTransferFrom(tokenA, msg.sender, pair, amountA);
         TransferHelper.safeTransferFrom(tokenB, msg.sender, pair, amountB);
         liquidity = IUniswapV2Pair(pair).mint(to);
@@ -260,9 +261,14 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
         returns (uint[] memory amounts)
     {
         require(path[0] == WETH, 'UniswapV2Router: INVALID_PATH');
+        console.log("Router path[0]", path[0]);
+        console.log("Router path[1]", path[1]);
         amounts = UniswapV2Library.getAmountsOut(factory, msg.value, path);
+        console.log("Router amounts[0]", amounts[0]);
+        console.log("Router amounts[1]", amounts[1]);
         require(amounts[amounts.length - 1] >= amountOutMin, 'UniswapV2Router: INSUFFICIENT_OUTPUT_AMOUNT');
         IWETH(WETH).deposit{value: amounts[0]}();
+        console.log("Router pair address", UniswapV2Library.pairFor(factory, path[0], path[1]));
         assert(IWETH(WETH).transfer(UniswapV2Library.pairFor(factory, path[0], path[1]), amounts[0]));
         _swap(amounts, path, to);
     }

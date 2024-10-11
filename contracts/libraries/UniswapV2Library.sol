@@ -3,6 +3,8 @@ pragma solidity >=0.5.0;
 import '@uniswap/v2-core/contracts/interfaces/IUniswapV2Pair.sol';
 import "./SafeMath.sol";
 
+import "hardhat/console.sol";
+
 library UniswapV2Library {
     using SafeMath for uint;
 
@@ -21,7 +23,7 @@ library UniswapV2Library {
                 hex'ff',
                 factory,
                 keccak256(abi.encodePacked(token0, token1)),
-                hex'a3262d5a36cb9cbe02da5480a5febe8821933d99de820720187c0acc32c7940e' // init code hash
+                hex'ec088290be76c7d43a8957e1c2ebcb0ecc52908c2867feed6f91582e40807df2' // init code hash
                 ))));
     }
 
@@ -43,10 +45,15 @@ library UniswapV2Library {
     function getAmountOut(uint amountIn, uint reserveIn, uint reserveOut) internal pure returns (uint amountOut) {
         require(amountIn > 0, 'UniswapV2Library: INSUFFICIENT_INPUT_AMOUNT');
         require(reserveIn > 0 && reserveOut > 0, 'UniswapV2Library: INSUFFICIENT_LIQUIDITY');
+        console.log("Library getAmountsOut: Δy ≈ (0.997 * Δx * y) / x");
         uint amountInWithFee = amountIn.mul(997);
         uint numerator = amountInWithFee.mul(reserveOut);
         uint denominator = reserveIn.mul(1000).add(amountInWithFee);
         amountOut = numerator / denominator;
+        // (x + Δx * 0.997) * (y - Δy) = x * y
+        //  xy - xΔy + 0.997Δx*y - 0.997Δx*Δy = xy
+        // 近似忽略 0.997ΔxΔy  -xΔy + 0.997Δx*y ≈ 0
+        // Δy ≈ (0.997 * Δx * y) / x
     }
 
     // given an output amount of an asset and pair reserves, returns a required input amount of the other asset
@@ -65,6 +72,8 @@ library UniswapV2Library {
         amounts[0] = amountIn;
         for (uint i; i < path.length - 1; i++) {
             (uint reserveIn, uint reserveOut) = getReserves(factory, path[i], path[i + 1]);
+            console.log("Library reserveIn", reserveIn);
+            console.log("Library reserveOut", reserveOut);
             amounts[i + 1] = getAmountOut(amounts[i], reserveIn, reserveOut);
         }
     }

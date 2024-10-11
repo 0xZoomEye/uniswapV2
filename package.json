@@ -3,8 +3,13 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
+    "clean": "hardhat clean",
+    "prefix": "npm run compile",
+    "fix": "node scripts/fix.js",
+    "precompile": "npm run clean",
     "compile": "hardhat compile",
-    "deploy": "HARDHAT_NETWORK=localhost hardhat run scripts/deploy.js"
+    "deploy": "HARDHAT_NETWORK=localhost node scripts/deploy.js",
+    "swap": "HARDHAT_NETWORK=localhost node scripts/swap.js"
   },
   "keywords": [],
   "author": "",
